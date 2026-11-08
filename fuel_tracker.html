@@ -34,17 +34,14 @@
   th{color:var(--muted); font-weight:600; font-size:.72rem; white-space:nowrap;}
   .empty{color:var(--muted); text-align:center; padding:16px; font-size:.85rem;}
   .row-actions{text-align:center !important;}
-  .toggle{display:flex; gap:8px; margin-bottom:4px;}
-  .toggle button{flex:1; padding:8px; border:1px solid var(--border); background:#0b1220; color:var(--muted); border-radius:8px; cursor:pointer; font-size:.85rem;}
-  .toggle button.active{background:var(--accent); color:#082f49; border-color:var(--accent); font-weight:700;}
-  .hint{font-size:.75rem; color:var(--muted); margin-top:6px;}
+  .hint{font-size:.75rem; color:var(--muted); margin-top:6px; line-height:1.4;}
   .chip{display:inline-block; padding:1px 7px; border-radius:6px; font-size:.72rem; font-weight:600;}
   .chip-ai92{background:#334155; color:#a5b4fc;}
   .chip-ai95{background:#0c4a6e; color:#7dd3fc;}
   .chip-ai98{background:#14532d; color:#86efac;}
   .chip-ai100{background:#581c87; color:#d8b4fe;}
-  .chip-dt{background:#713f12; color:#fcd34d;}
-  .chip-gas{background:#7f1d1d; color:#fca5a5;}
+  .actions{display:flex; gap:12px;}
+  .actions .btn{margin-top:0;}
   @media(max-width:560px){ .grid,.grid3{grid-template-columns:1fr;} .stats{grid-template-columns:1fr 1fr;} }
 </style>
 </head>
@@ -54,77 +51,44 @@
   <div class="sub">Записи хранятся локально в вашем браузере</div>
 
   <div class="card">
-    <div class="toggle" id="modeToggle">
-      <button class="active" data-mode="trip" onclick="setMode('trip')">Поездка (км)</button>
-      <button data-mode="odo" onclick="setMode('odo')">По одометру</button>
+    <div class="grid3">
+      <div>
+        <label>Дата</label>
+        <input type="date" id="date">
+      </div>
+      <div>
+        <label>Заправка (сеть)</label>
+        <select id="station">
+          <option>Лукойл</option><option>Газпромнефть</option><option>Роснефть</option>
+          <option>Татнефть</option><option>Башнефть</option><option>Нефтьмагистраль</option>
+          <option>ТрансАЗС</option><option>НК «Альянс»</option><option>Сургутнефтегаз</option>
+          <option>Тебойл</option><option>Руснефть</option><option>Независимая АЗС</option>
+          <option>Другая</option>
+        </select>
+      </div>
+      <div>
+        <label>Тип топлива</label>
+        <select id="fuel">
+          <option>АИ-92</option><option>АИ-92+</option><option>АИ-95</option>
+          <option>АИ-95+</option><option>АИ-98</option><option>АИ-100</option>
+        </select>
+      </div>
     </div>
-
-    <!-- Режим: поездка -->
-    <div id="tripFields">
-      <div class="grid3">
-        <div>
-          <label>Дата</label>
-          <input type="date" id="date">
-        </div>
-        <div>
-          <label>Заправка (сеть)</label>
-          <select id="station"></select>
-        </div>
-        <div>
-          <label>Тип топлива</label>
-          <select id="fuel"></select>
-        </div>
+    <div class="grid">
+      <div>
+        <label>Одометр, км</label>
+        <input type="number" id="odo" min="0" step="1" placeholder="напр. 83734">
       </div>
-      <div class="grid">
-        <div>
-          <label>Проехал, км</label>
-          <input type="number" id="km" min="0" step="0.1" placeholder="напр. 350">
-        </div>
-        <div>
-          <label>Залил, литров</label>
-          <input type="number" id="liters" min="0" step="0.01" placeholder="напр. 28.5">
-        </div>
-        <div>
-          <label>Цена за литр, ₽</label>
-          <input type="number" id="price" min="0" step="0.01" placeholder="напр. 56.40">
-        </div>
+      <div>
+        <label>Залил, литров</label>
+        <input type="number" id="liters" min="0" step="0.01" placeholder="напр. 45">
       </div>
-      <div class="hint">Режим «Поездка»: вы указываете, сколько проехали с этой заправки.</div>
+      <div>
+        <label>Цена за литр, ₽</label>
+        <input type="number" id="price" min="0" step="0.01" placeholder="напр. 67.10">
+      </div>
     </div>
-
-    <!-- Режим: по одометру -->
-    <div id="odoFields" style="display:none">
-      <div class="grid3">
-        <div>
-          <label>Дата</label>
-          <input type="date" id="date2">
-        </div>
-        <div>
-          <label>Заправка (сеть)</label>
-          <select id="station2"></select>
-        </div>
-        <div>
-          <label>Тип топлива</label>
-          <select id="fuel2"></select>
-        </div>
-      </div>
-      <div class="grid">
-        <div>
-          <label>Одометр, км</label>
-          <input type="number" id="odo" min="0" step="1" placeholder="напр. 45230">
-        </div>
-        <div>
-          <label>Залил, литров</label>
-          <input type="number" id="liters2" min="0" step="0.01" placeholder="напр. 28.5">
-        </div>
-        <div>
-          <label>Цена за литр, ₽</label>
-          <input type="number" id="price2" min="0" step="0.01" placeholder="напр. 56.40">
-        </div>
-      </div>
-      <div class="hint">Режим «По одометру»: пробег вычисляется от предыдущей записи.</div>
-    </div>
-
+    <div class="hint">Расход считается по следующей заправке: сколько вы проехали на залитом сейчас топливе — узнается при следующей записи.</div>
     <button class="btn" onclick="addRecord()">Добавить запись</button>
   </div>
 
@@ -155,11 +119,11 @@
   <div class="card" style="margin-top:16px">
     <h1 style="font-size:1.1rem; margin-bottom:10px">История заправок</h1>
     <div style="overflow-x:auto">
-    <table id="table">
+    <table>
       <thead>
         <tr>
-          <th>Дата</th><th>Заправка</th><th>Пробег</th><th>Литры</th><th>Сумма</th>
-          <th>л/100км</th><th>₽/км</th><th></th>
+          <th>Дата</th><th>Заправка</th><th>Одометр</th><th>Литры</th><th>Сумма</th>
+          <th>На этом топливе проехал</th><th>л/100км</th><th>₽/км</th><th></th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
@@ -168,31 +132,14 @@
     <div class="empty" id="emptyMsg">Пока нет записей — добавьте первую заправку</div>
   </div>
 
-  <div class="card" style="display:flex; gap:12px">
-    <button class="btn" style="margin-top:0; background:var(--border); color:var(--text)" onclick="exportCSV()">⬇ Экспорт CSV</button>
-    <button class="btn" style="margin-top:0; background:var(--bad)" onclick="clearAll()">Очистить всё</button>
+  <div class="card actions">
+    <button class="btn" style="background:var(--border); color:var(--text)" onclick="exportCSV()">⬇ Экспорт CSV</button>
+    <button class="btn" style="background:var(--bad)" onclick="clearAll()">Очистить всё</button>
   </div>
 </div>
 
 <script>
-const KEY = 'fuel_records_v2';
-
-const STATIONS = [
-  'Лукойл','Газпромнефть','Роснефть','Татнефть','Башнефть',
-  'Нефтьмагистраль','ТрансАЗС','НК «Альянс»','Сургутнефтегаз','Тебойл',
-  'Руснефть','Независимая АЗС','Другая'
-];
-
-const FUELS = [
-  {id:'АИ-92', cls:'ai92'},
-  {id:'АИ-95', cls:'ai95'},
-  {id:'АИ-92+', cls:'ai92'},
-  {id:'АИ-95+', cls:'ai95'},
-  {id:'АИ-98', cls:'ai98'},
-  {id:'АИ-100', cls:'ai100'}
-];
-
-let mode = 'trip';
+const KEY = 'fuel_records_v3';
 let records = load();
 
 function load(){
@@ -200,67 +147,51 @@ function load(){
 }
 function save(){ localStorage.setItem(KEY, JSON.stringify(records)); }
 
-function fillSelect(id, items){
-  const sel = document.getElementById(id);
-  sel.innerHTML = items.map(s => '<option value="'+s+'">'+s+'</option>').join('');
-}
-function fillFuelSelect(id){
-  const sel = document.getElementById(id);
-  sel.innerHTML = FUELS.map(f => '<option value="'+f.id+'">'+f.id+'</option>').join('');
-}
-fillSelect('station', STATIONS);  fillFuelSelect('fuel');
-fillSelect('station2', STATIONS); fillFuelSelect('fuel2');
+function sortByOdo(){ records.sort((a,b) => a.odo - b.odo); }
 
-function fuelChip(f){
-  const fu = FUELS.find(x => x.id === f);
-  return '<span class="chip '+(fu?fu.cls:'ai95')+'">'+f+'</span>';
-}
-
-function setMode(m){
-  mode = m;
-  document.querySelectorAll('#modeToggle button').forEach(b =>
-    b.classList.toggle('active', b.dataset.mode === m));
-  document.getElementById('tripFields').style.display = m === 'trip' ? '' : 'none';
-  document.getElementById('odoFields').style.display = m === 'odo' ? '' : 'none';
+// Для каждой записи (кроме последней по одометру) считаем:
+// сколько проехали на ЗАЛИТОМ в ней топливе = одометр следующей записи - одометр этой
+function deriveStats(){
+  sortByOdo();
+  const res = records.map((r, i) => {
+    const cost = r.liters * r.price;
+    let km = null, per100 = null, perKm = null;
+    if (i < records.length - 1){
+      km = records[i+1].odo - r.odo;
+      if (km > 0){
+        per100 = r.liters / km * 100;
+        perKm = cost / km;
+      }
+    }
+    return {rec: r, cost, km, per100, perKm};
+  });
+  return res; // в порядке возрастания одометра
 }
 
 function fmt(n, d=2){ return n == null || !isFinite(n) ? '—' : n.toFixed(d); }
 
 function addRecord(){
-  let km, liters, price, date, station, fuel;
-  if (mode === 'trip'){
-    date   = document.getElementById('date').value || new Date().toISOString().slice(0,10);
-    station= document.getElementById('station').value;
-    fuel   = document.getElementById('fuel').value;
-    km     = parseFloat(document.getElementById('km').value);
-    liters = parseFloat(document.getElementById('liters').value);
-    price  = parseFloat(document.getElementById('price').value);
-  } else {
-    date   = document.getElementById('date2').value || new Date().toISOString().slice(0,10);
-    station= document.getElementById('station2').value;
-    fuel   = document.getElementById('fuel2').value;
-    liters = parseFloat(document.getElementById('liters2').value);
-    price  = parseFloat(document.getElementById('price2').value);
-    const odo = parseFloat(document.getElementById('odo').value);
-    if (isNaN(odo) || odo < 0){ alert('Укажите пробег одометра'); return; }
-    const prev = records.filter(r => r.odo !== undefined && r.odo !== null && r.odo < odo)
-                        .sort((a,b) => b.odo - a.odo)[0];
-    if (!prev){ alert('Нет предыдущей записи с одометром — добавьте сначала запись с меньшим пробегом или используйте режим «Поездка».'); return; }
-    km = odo - prev.odo;
-    if (km <= 0){ alert('Пробег должен быть больше предыдущего (' + prev.odo + ' км)'); return; }
-    records.push({date, station, fuel, odo, liters, price});
-    records.sort((a,b) => (a.date+a.odo) < (b.date+b.odo) ? -1 : 1);
-    save(); render();
-    ['odo','liters2','price2'].forEach(id => document.getElementById(id).value = '');
-    return;
-  }
-  if (isNaN(km) || km <= 0){ alert('Укажите, сколько проехали (км)'); return; }
+  const date   = document.getElementById('date').value || new Date().toISOString().slice(0,10);
+  const station= document.getElementById('station').value;
+  const fuel   = document.getElementById('fuel').value;
+  const liters = parseFloat(document.getElementById('liters').value);
+  const price  = parseFloat(document.getElementById('price').value);
+  const odo    = parseFloat(document.getElementById('odo').value);
+
+  if (isNaN(odo) || odo < 0){ alert('Укажите пробег одометра'); return; }
   if (isNaN(liters) || liters <= 0){ alert('Укажите, сколько залили литров'); return; }
   if (isNaN(price) || price <= 0){ alert('Укажите цену за литр'); return; }
-  records.push({date, station, fuel, km, liters, price});
-  records.sort((a,b) => a.date < b.date ? -1 : 1);
+
+  if (records.length){
+    const maxOdo = Math.max(...records.map(r => r.odo));
+    if (odo <= maxOdo){ alert('Одометр должен быть больше предыдущего (' + maxOdo + ' км)'); return; }
+  }
+
+  records.push({date, station, fuel, odo, liters, price});
+  sortByOdo();
   save(); render();
-  ['km','liters','price'].forEach(id => document.getElementById(id).value = '');
+  ['odo','liters','price'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('odo').focus();
 }
 
 function del(i){
@@ -271,90 +202,82 @@ function clearAll(){
   if (confirm('Удалить ВСЕ записи? Это действие необратимо.')){ records = []; save(); render(); }
 }
 
-function calc(rec){
-  const cost = rec.liters * rec.price;
-  const per100 = rec.km > 0 ? rec.liters / rec.km * 100 : null;
-  const perKm = rec.km > 0 ? cost / rec.km : null;
-  return {cost, per100, perKm};
-}
-
-function totals(){
-  let km=0, liters=0, cost=0;
-  records.forEach(r => { const c = calc(r); km+=r.km; liters+=r.liters; cost+=c.cost; });
-  return { km, liters, cost,
-    per100: km>0 ? liters/km*100 : null,
-    perKm: km>0 ? cost/km : null };
+function fuelChip(f){
+  const map = {'АИ-92':'ai92','АИ-92+':'ai92','АИ-95':'ai95','АИ-95+':'ai95','АИ-98':'ai98','АИ-100':'ai100'};
+  return '<span class="chip '+(map[f]||'ai95')+'">'+f+'</span>';
 }
 
 function render(){
+  const stats = deriveStats(); // по возрастанию одометра
+
+  // --- История (новые сверху) ---
   const tb = document.getElementById('tbody');
   tb.innerHTML = '';
   document.getElementById('emptyMsg').style.display = records.length ? 'none' : '';
-  [...records].map((r,i)=>({r,i})).reverse().forEach(({r,i}) => {
-    const c = calc(r);
+  stats.slice().reverse().forEach((s) => {
+    const i = records.indexOf(s.rec);
     const tr = document.createElement('tr');
     tr.innerHTML =
-      '<td>'+r.date+'</td>'+
-      '<td>'+(r.station || '—')+'<br>'+fuelChip(r.fuel || 'АИ-95')+'</td>'+
-      '<td>'+fmt(r.km,1)+' км</td>'+
-      '<td>'+fmt(r.liters)+' л</td>'+
-      '<td>'+fmt(c.cost)+' ₽</td>'+
-      '<td>'+fmt(c.per100)+'</td>'+
-      '<td>'+fmt(c.perKm)+' ₽</td>'+
+      '<td>'+s.rec.date+'</td>'+
+      '<td>'+s.rec.station+'<br>'+fuelChip(s.rec.fuel)+'</td>'+
+      '<td>'+s.rec.odo+' км</td>'+
+      '<td>'+fmt(s.rec.liters)+' л</td>'+
+      '<td>'+fmt(s.cost)+' ₽</td>'+
+      '<td>'+(s.km == null ? '<i style="color:var(--muted)">—</i>' : fmt(s.km,0)+' км')+'</td>'+
+      '<td><b>'+fmt(s.per100)+'</b></td>'+
+      '<td>'+fmt(s.perKm)+' ₽</td>'+
       '<td class="row-actions"><button class="btn-del" onclick="del('+i+')">✕</button></td>';
     tb.appendChild(tr);
   });
-  renderSummaries();
-  const t = totals();
+
+  // --- Общая статистика ---
+  let km=0, liters=0, cost=0;
+  stats.forEach(s => { if (s.km != null){ km += s.km; liters += s.rec.liters; cost += s.cost; } });
   document.getElementById('stats').innerHTML =
-    stat(fmt(t.per100)+' л', 'Средний расход / 100 км') +
-    stat(fmt(t.perKm)+' ₽', 'Стоимость километра') +
-    stat(fmt(t.km,0)+' км', 'Всего проехали') +
-    stat(fmt(t.cost,0)+' ₽', 'Всего потрачено на топливо');
+    stat(liters > 0 ? (liters/km*100).toFixed(2)+' л' : '— л', 'Средний расход / 100 км') +
+    stat(cost > 0 ? (cost/km).toFixed(2)+' ₽' : '— ₽', 'Стоимость километра') +
+    stat(fmt(km,0)+' км', 'Всего проехали') +
+    stat(fmt(stats.reduce((a,s)=>a+s.cost,0),0)+' ₽', 'Всего потрачено на топливо');
+
+  // --- Сводки ---
+  renderGroup('tbodyFuel', 'emptyFuel', groupStats(stats, 'fuel'), true);
+  renderGroup('tbodyStation', 'emptyStation', groupStats(stats, 'station'), false);
 }
 
-function groupStats(key){
+function groupStats(stats, key){
   const map = {};
-  records.forEach(r => {
-    const k = r[key] || '—';
+  stats.forEach(s => {
+    if (s.km == null) return; // последняя заправка ещё без данных
+    const k = s.rec[key] || '—';
     if (!map[k]) map[k] = {n:0, km:0, liters:0, cost:0};
-    const c = calc(r);
-    map[k].n++; map[k].km += r.km; map[k].liters += r.liters; map[k].cost += c.cost;
+    map[k].n++; map[k].km += s.km; map[k].liters += s.rec.liters; map[k].cost += s.cost;
   });
   return Object.entries(map).map(([name, g]) => ({
-    name, n: g.n, km: g.km, liters: g.liters, cost: g.cost,
-    per100: g.km > 0 ? g.liters / g.km * 100 : null,
-    perKm: g.km > 0 ? g.cost / g.km : null,
-    avgPrice: g.liters > 0 ? g.cost / g.liters : null
-  })).sort((a,b) => (a.per100 ?? 999) - (b.per100 ?? 999));
+    name, n:g.n, km:g.km, liters:g.liters, cost:g.cost,
+    per100: g.liters/g.km*100, perKm: g.cost/g.km, avgPrice: g.cost/g.liters
+  })).sort((a,b) => a.per100 - b.per100);
 }
 
-function summaryRow(g, firstCell){
-  return '<tr><td>'+firstCell+'</td><td>'+g.n+'</td><td>'+fmt(g.km,0)+' км</td>' +
-    '<td><b>'+fmt(g.per100)+'</b></td><td>'+fmt(g.perKm)+' ₽</td><td>'+fmt(g.avgPrice)+' ₽/л</td></tr>';
-}
-
-function renderSummaries(){
-  const byFuel = groupStats('fuel');
-  const tf = document.getElementById('tbodyFuel');
-  tf.innerHTML = byFuel.map(g => summaryRow(g, fuelChip(g.name))).join('');
-  document.getElementById('emptyFuel').style.display = byFuel.length ? 'none' : '';
-
-  const byStation = groupStats('station');
-  const ts = document.getElementById('tbodyStation');
-  ts.innerHTML = byStation.map(g => summaryRow(g, g.name)).join('');
-  document.getElementById('emptyStation').style.display = byStation.length ? 'none' : '';
+function renderGroup(tbodyId, emptyId, rows, isFuel){
+  const tb = document.getElementById(tbodyId);
+  tb.innerHTML = rows.map(g =>
+    '<tr><td>'+(isFuel ? fuelChip(g.name) : g.name)+'</td><td>'+g.n+'</td>' +
+    '<td>'+fmt(g.km,0)+' км</td><td><b>'+fmt(g.per100)+'</b></td>' +
+    '<td>'+fmt(g.perKm)+' ₽</td><td>'+fmt(g.avgPrice)+' ₽/л</td></tr>'
+  ).join('');
+  document.getElementById(emptyId).style.display = rows.length ? 'none' : '';
 }
 
 function stat(v,l){ return '<div class="stat"><div class="val">'+v+'</div><div class="lbl">'+l+'</div></div>'; }
 
 function exportCSV(){
   if (!records.length){ alert('Нет данных для экспорта'); return; }
-  let csv = 'Дата;Заправка;Топливо;Пробег_км;Литры;Цена_л;Сумма;л_100км;руб_км\n';
-  records.forEach(r => {
-    const c = calc(r);
-    csv += [r.date, r.station||'', r.fuel||'', r.km, r.liters, r.price,
-            c.cost.toFixed(2), c.per100?c.per100.toFixed(2):'', c.perKm?c.perKm.toFixed(2):''].join(';') + '\n';
+  const stats = deriveStats();
+  let csv = 'Дата;Заправка;Топливо;Одометр;Литры;Цена_л;Сумма;Пробег_на_этом_топливе;л_100км;руб_км\n';
+  stats.forEach(s => {
+    csv += [s.rec.date, s.rec.station, s.rec.fuel, s.rec.odo, s.rec.liters, s.rec.price,
+            s.cost.toFixed(2), s.km ?? '', s.per100 ? s.per100.toFixed(2) : '',
+            s.perKm ? s.perKm.toFixed(2) : ''].join(';') + '\n';
   });
   const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a');
@@ -364,7 +287,6 @@ function exportCSV(){
 }
 
 document.getElementById('date').value = new Date().toISOString().slice(0,10);
-document.getElementById('date2').value = new Date().toISOString().slice(0,10);
 render();
 </script>
 </body>
