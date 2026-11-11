@@ -89,7 +89,8 @@
       </div>
     </div>
     <div class="hint">Расход считается по следующей заправке: сколько вы проехали на залитом сейчас топливе — узнается при следующей записи.</div>
-    <button class="btn" onclick="addRecord()">Добавить запись</button>
+    <button class="btn" id="addBtn" onclick="addRecord()">Добавить запись</button>
+    <button class="btn" id="cancelBtn" onclick="cancelEdit()" style="display:none; margin-top:8px; background:var(--border); color:var(--text)">Отмена</button>
   </div>
 
   <div class="stats" id="stats"></div>
@@ -182,6 +183,16 @@ function addRecord(){
   if (isNaN(liters) || liters <= 0){ alert('Укажите, сколько залили литров'); return; }
   if (isNaN(price) || price <= 0){ alert('Укажите цену за литр'); return; }
 
+  if (editingIndex !== null){
+    const others = records.filter((_, j) => j !== editingIndex);
+    if (others.some(x => x.odo === odo)){ alert('Запись с таким одометром уже есть'); return; }
+    records[editingIndex] = {date, station, fuel, odo, liters, price};
+    sortByOdo();
+    save(); render();
+    cancelEdit();
+    return;
+  }
+
   if (records.length){
     const maxOdo = Math.max(...records.map(r => r.odo));
     if (odo <= maxOdo){ alert('Одометр должен быть больше предыдущего (' + maxOdo + ' км)'); return; }
@@ -196,6 +207,30 @@ function addRecord(){
 
 function del(i){
   if (confirm('Удалить запись?')){ records.splice(i,1); save(); render(); }
+}
+
+let editingIndex = null;
+
+function edit(i){
+  const r = records[i];
+  editingIndex = i;
+  document.getElementById('date').value = r.date;
+  document.getElementById('station').value = r.station;
+  document.getElementById('fuel').value = r.fuel;
+  document.getElementById('odo').value = r.odo;
+  document.getElementById('liters').value = r.liters;
+  document.getElementById('price').value = r.price;
+  document.getElementById('addBtn').textContent = '💾 Сохранить изменения';
+  document.getElementById('cancelBtn').style.display = '';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function cancelEdit(){
+  editingIndex = null;
+  document.getElementById('addBtn').textContent = 'Добавить запись';
+  document.getElementById('cancelBtn').style.display = 'none';
+  ['odo','liters','price'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('date').value = new Date().toISOString().slice(0,10);
 }
 
 function clearAll(){
@@ -226,7 +261,7 @@ function render(){
       '<td>'+(s.km == null ? '<i style="color:var(--muted)">—</i>' : fmt(s.km,0)+' км')+'</td>'+
       '<td><b>'+fmt(s.per100)+'</b></td>'+
       '<td>'+fmt(s.perKm)+' ₽</td>'+
-      '<td class="row-actions"><button class="btn-del" onclick="del('+i+')">✕</button></td>';
+      '<td class="row-actions"><button class="btn-del" onclick="edit('+i+')" style="color:var(--accent)">✏️</button> <button class="btn-del" onclick="del('+i+')">✕</button></td>';
     tb.appendChild(tr);
   });
 
